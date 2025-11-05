@@ -1,0 +1,28 @@
+apiVersion: ceph.rook.io/v1
+kind: CephNFS
+metadata:
+  name: nfs-a
+  namespace: rook-ceph
+spec:
+  rados:
+    pool: milkyfs
+    namespace: nfs-a
+  server:
+    active: 2
+    placement:
+      all: false
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - milky-k8s-worker-01
+                    - milky-k8s-worker-02
+                    - milky-k8s-worker-03  
+                    - milky-k8s-worker-04
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
