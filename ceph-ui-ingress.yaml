@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ceph-ui-ingress
+  namespace: rook-ceph
+  annotations:
+    #kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: certmanager01
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    # type of authentication
+    #nginx.ingress.kubernetes.io/auth-type: basic
+    # name of the secret that contains the user/password definitions
+    #nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    # message to display with an appropriate context why the authentication is required
+    #nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - foo'
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - cephui.milkymonz.com
+##### if you use certmanager do not remove #
+    secretName: cephui-tls
+  rules:
+  - host: cephui.milkymonz.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: rook-ceph-mgr-dashboard
+            port:
+              number: 8443
