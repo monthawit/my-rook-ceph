@@ -1,0 +1,38 @@
+apiVersion: ceph.rook.io/v1
+kind: CephFilesystem
+metadata:
+  name: milkyfs
+  namespace: rook-ceph
+spec:
+  # สร้าง metadata pool (เก็บโครงสร้างไฟล์)
+  metadataPool:
+    replicated:
+      size: 4                # แนะนำ ≥ zones × 2 – 2 เช่น 4 เมื่อมี 3 site
+    parameters:
+      compression_mode: none
+
+  # สร้าง data pool (เก็บข้อมูลจริง)
+  dataPools:
+    - replicated:
+        size: 4
+      parameters:
+        compression_mode: aggressive
+
+  # ลบ pool ทิ้งอัตโนมัติเมื่อ CephFilesystem ถูกลบ
+  preservePoolsOnDelete: false
+
+  # ตั้งค่า MDS ให้ทำงานได้ดีใน stretched cluster
+  metadataServer:
+    activeCount: 1            # มี 1 MDS active ต่อ FS
+    activeStandby: true       # เปิด standby เพื่อ HA ระหว่าง zones
+    placement:
+      # วาง MDS เฉพาะ site A/B (ไม่วางใน arbiter)
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: topology.kubernetes.io/zone
+                  operator: In
+                  values:
+                    - site-a
+                    - site-b
