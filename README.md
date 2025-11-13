@@ -15,6 +15,79 @@ helm install --create-namespace --namespace rook-ceph rook-ceph-cluster \
    --set operatorNamespace=rook-ceph rook-release/rook-ceph-cluster -f values.yaml
 ```
 
+# Ceph Basic Command 
+
+### Exec to nettools 
+
+```bash
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- bash
+```
+
+
+###  allow pool delete 
+
+ceph config set mon mon_allow_pool_delete true
+
+### Delete Ceph Pools 
+
+```
+ceph fs ls
+ceph osd pool ls
+
+
+
+ceph osd pool delete cephfs.myfs.data cephfs.myfs.data --yes-i-really-really-mean-it
+ceph osd pool delete cephfs.myfs.meta cephfs.myfs.meta --yes-i-really-really-mean-it
+
+
+ceph osd pool delete .nfs .nfs --yes-i-really-really-mean-it
+
+
+
+
+====== enable nfs export UI ========
+
+https://rook.io/docs/rook/latest-release/Storage-Configuration/NFS/nfs/?h=orc#using-the-ceph-dashboard
+
+
+Enable the Ceph orchestrator (optional)¶
+
+ceph mgr module enable rook
+ceph mgr module enable nfs
+ceph orch set backend rook
+
+
+======== Create NFS cluster  ============
+
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- bash
+
+ceph nfs cluster ls
+ceph nfs cluster create nfs-server-01
+
+ceph nfs cluster ls
+
+
+========================================
+
+
+
+ceph nfs export create cephfs --cluster-id nfs-server-01 --pseudo-path /nfs-server-01 --fsname milkyfs [--readonly] [--path=/nfs-server-01] [--client_addr 10.151.0.0/23 ] [--squash no_root_squash] [--sectype none] [--cmount_path /]
+
+
+ceph nfs export create cephfs my-nfs /test myfs
+
+
+
+kubectl patch cephobjectstore my-store -n rook-ceph -p '{"metadata":{"finalizers":[]}}' --type=merge
+
+kubectl patch cephobjectstore my-store -n rook-ceph -p '{"metadata":{"finalizers":[]}}' --type=merge
+
+
+kubectl patch cephobjectstore multisite-store -n rook-ceph -p '{"metadata":{"finalizers":[]}}' --type=merge
+
+kubectl patch cephobjectstore multisite-store -n rook-ceph -p '{"metadata":{"finalizers":[]}}' --type=merge
+```
+
 # Test Ceph S3 Service By s3cmd
 
 ### Install
