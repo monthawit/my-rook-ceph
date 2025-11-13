@@ -15,7 +15,7 @@ helm install --create-namespace --namespace rook-ceph rook-ceph-cluster \
    --set operatorNamespace=rook-ceph rook-release/rook-ceph-cluster -f values.yaml
 ```
 
-# Test Ceph S3 Service By s3cli
+# Test Ceph S3 Service By s3cmd
 
 ### Install
 
