@@ -15,6 +15,22 @@ helm install --create-namespace --namespace rook-ceph rook-ceph-cluster \
    --set operatorNamespace=rook-ceph rook-release/rook-ceph-cluster -f values.yaml
 ```
 
+Helm Select Device Class 
+
+```yaml
+apiVersion: ceph.rook.io/v1
+kind: CephBlockPool
+metadata:
+  name: rbd-fast
+  namespace: rook-ceph
+spec:
+  failureDomain: host
+  replicated:
+    size: 3
+  crushRule:
+    deviceClass: nvme
+```
+
 # Ceph Basic Command 
 
 ### Exec to nettools 
