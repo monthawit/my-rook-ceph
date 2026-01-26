@@ -13,6 +13,10 @@ helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/roo
 
 helm install --create-namespace --namespace rook-ceph rook-ceph-cluster \
    --set operatorNamespace=rook-ceph rook-release/rook-ceph-cluster -f values.yaml
+
+===== force =====
+
+--force-conflicts
 ```
 
 Helm Select Device Class 
