@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ceph-fstrim-reclaim
+  namespace: kube-system
+spec:
+  schedule: "0 2 * * 0" # รันทุกวันอาทิตย์ เวลาตี 2
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          hostNetwork: true
+          hostPID: true
+          containers:
+          - name: fstrim
+            image: alpine
+            securityContext:
+              privileged: true
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # ค้นหา mount point ที่เป็นของ Ceph RBD และทำการ trim
+              echo "Starting fstrim on Ceph RBD volumes..."
+              for mnt in $(mount | grep rbd | awk '{print $3}'); do
+                echo "Trimming $mnt..."
+                fstrim -v "$mnt" || echo "Failed to trim $mnt"
+              done
+              echo "Fstrim completed."
+          restartPolicy: OnFailure
